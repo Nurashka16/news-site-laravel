@@ -54,3 +54,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])
         ->name('comments.destroy');
 });
+
+// Route::get('/test-mail', function () {
+//     Mail::raw('Тестовое сообщение от Laravel', function ($message) {
+//         $message->to('tnuraika16@gmail.com')
+//                 ->subject('Тест SMTP');
+//     });
+//     return 'Письмо отправлено! Проверь почту.';
+// });

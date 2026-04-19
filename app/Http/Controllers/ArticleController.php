@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NewArticleMail;
 
 class ArticleController extends Controller
 {
@@ -18,18 +21,12 @@ class ArticleController extends Controller
         $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
-    /**
-     * Display a listing of the resource. (Доступно ВСЕМ)
-     */
     public function index()
     {
         $articles = Article::latest()->paginate(6);
         return view('articles.index', compact('articles'));
     }
 
-    /**
-     * Show the form for creating a new resource. (Только модератор)
-     */
     public function create()
     {
         if (!Auth::check() || !Auth::user()->isModerator()) {
@@ -38,9 +35,6 @@ class ArticleController extends Controller
         return view('articles.create');
     }
 
-    /**
-     * Store a newly created resource in storage. (Только модератор)
-     */
     public function store(Request $request)
     {
         if (!Auth::check() || !Auth::user()->isModerator()) {
@@ -60,30 +54,36 @@ class ArticleController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        Article::create([
+        // Создание статьи
+        $article = Article::create([
             'title' => $request->title,
             'description' => $request->description,
             'content' => $request->content,
             'preview_image' => $request->preview_image ?? 'images/1.jpg',
             'full_image' => $request->full_image ?? 'images/1.jpg',
             'published_at' => $request->published_at ?? now(),
+            'user_id' => Auth::id(), // Сохраняем автора
         ]);
 
-        return redirect()->route('articles.index')->with('success', 'Статья успешно создана!');
+        $moderators = User::whereHas('role', function($query) {
+            $query->where('name', 'moderator');
+        })->get();
+
+        // Отправляем письмо каждому модератору
+        foreach ($moderators as $moderator) {
+            Mail::to($moderator->email)->send(new NewArticleMail($article, $moderator));
+        }
+
+        return redirect()->route('articles.index')->with('success', 'Статья успешно создана и модераторы уведомлены!');
     }
 
-    /**
-     * Display the specified resource. (Доступно ВСЕМ — без проверок!)
-     */
-public function show($id)
-{
-    $article = Article::with('comments.user')->findOrFail($id);
-    return view('articles.show', compact('article'));
-}
+    public function show($id)
+    {
+        // Загружаем статью вместе с комментариями и пользователями, оставившими их
+        $article = Article::with('comments.user')->findOrFail($id);
+        return view('articles.show', compact('article'));
+    }
 
-    /**
-     * Show the form for editing the specified resource. (Только модератор)
-     */
     public function edit($id)
     {
         if (!Auth::check() || !Auth::user()->isModerator()) {
@@ -93,9 +93,6 @@ public function show($id)
         return view('articles.edit', compact('article'));
     }
 
-    /**
-     * Update the specified resource in storage. (Только модератор)
-     */
     public function update(Request $request, $id)
     {
         if (!Auth::check() || !Auth::user()->isModerator()) {
@@ -128,9 +125,6 @@ public function show($id)
         return redirect()->route('articles.index')->with('success', 'Статья успешно обновлена!');
     }
 
-    /**
-     * Remove the specified resource from storage. (Только модератор)
-     */
     public function destroy($id)
     {
         if (!Auth::check() || !Auth::user()->isModerator()) {
