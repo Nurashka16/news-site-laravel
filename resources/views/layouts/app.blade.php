@@ -133,17 +133,35 @@
 </head>
 <body>
     <header>
-        <nav>
+<nav>
     <div class="logo">
-        <a href="/" style="color: #fff; text-decoration: none;">NewsSite</a>
+        <a href="{{ route('articles.index') }}" style="color: #fff; text-decoration: none;">NewsSite</a>
     </div>
-   <ul>
-      <li><a href="/" class="{{ request()->is('/') ? 'active' : '' }}">Главная</a></li>
-      <li><a href="{{ route('articles.index') }}" class="{{ request()->routeIs('articles.*') ? 'active' : '' }}">Новости</a></li>
-      <li><a href="/about" class="{{ request()->is('about') ? 'active' : '' }}">О нас</a></li>
-      <li><a href="/contact" class="{{ request()->is('contact') ? 'active' : '' }}">Контакты</a></li>
-      <li><a href="{{ route('signin') }}">Регистрация</a></li>
-   </ul>
+    
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <!-- Основное меню -->
+        <ul style="display: flex; gap: 20px; margin: 0; padding: 0; list-style: none;">
+            <li><a href="/" class="{{ request()->is('/') ? 'active' : '' }}">Главная</a></li>
+            <li><a href="{{ route('articles.index') }}" class="{{ request()->routeIs('articles.*') ? 'active' : '' }}">Новости</a></li>
+            <li><a href="/about" class="{{ request()->is('about') ? 'active' : '' }}">О нас</a></li>
+            <li><a href="/contact" class="{{ request()->is('contact') ? 'active' : '' }}">Контакты</a></li>
+        </ul>
+        
+        <!-- Кнопки авторизации (справа) -->
+        <div style="display: flex; gap: 10px;">
+            @guest
+                <a href="{{ route('login') }}" style="color: #fff; text-decoration: none; padding: 5px 15px; border: 1px solid #fff; border-radius: 3px;">Вход</a>
+                <a href="{{ route('signin') }}" style="background-color: #e8491d; color: #fff; text-decoration: none; padding: 5px 15px; border-radius: 3px;">Регистрация</a>
+            @else
+                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" style="background: transparent; border: 1px solid #fff; color: #fff; cursor: pointer; padding: 5px 15px; border-radius: 3px;">
+                        Выход ({{ Auth::user()->name }})
+                    </button>
+                </form>
+            @endguest
+        </div>
+    </div>
 </nav>
     </header>
 

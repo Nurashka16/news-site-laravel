@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MainController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ArticleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -9,54 +11,36 @@ use App\Http\Controllers\MainController;
 |--------------------------------------------------------------------------
 */
 
-// Главная страница с новостями (через контроллер)
-Route::get('/', [MainController::class, 'index'])->name('home');
+// === Публичные маршруты (без защиты) ===
 
-// Страница галереи
+// Главная страница с новостями из JSON (Задание 2)
+Route::get('/', [MainController::class, 'index'])->name('home');
 Route::get('/gallery/{id}', [MainController::class, 'gallery'])->name('gallery');
 
-// Страница "О нас"
-Route::get('/about', function () {
-    return view('about');
-});
-
-// Страница "Контакты"
+// Статические страницы
+Route::get('/about', fn() => view('about'));
 Route::get('/contact', function () {
     $team = [
-        [
-            'name' => 'Иванов Иван Иванович',
-            'position' => 'Главный редактор',
-            'email' => 'ivanov@newssite.ru'
-        ],
-        [
-            'name' => 'Петрова Мария Сергеевна',
-            'position' => 'Редактор новостей',
-            'email' => 'petrova@newssite.ru'
-        ],
-        [
-            'name' => 'Сидоров Алексей Петрович',
-            'position' => 'Корреспондент',
-            'email' => 'sidorov@newssite.ru'
-        ]
+        ['name' => 'Иванов Иван Иванович', 'position' => 'Главный редактор', 'email' => 'ivanov@newssite.ru'],
+        ['name' => 'Петрова Мария Сергеевна', 'position' => 'Редактор новостей', 'email' => 'petrova@newssite.ru'],
+        ['name' => 'Сидоров Алексей Петрович', 'position' => 'Корреспондент', 'email' => 'sidorov@newssite.ru']
     ];
-
     return view('contact', ['team' => $team]);
 });
 
-// === Маршруты авторизации ===
-use App\Http\Controllers\AuthController;
-
-// Показать форму регистрации
+// Регистрация (Задание 3)
 Route::get('/signin', [AuthController::class, 'create'])->name('signin');
-
-// Обработать регистрацию
 Route::post('/registration', [AuthController::class, 'registration'])->name('registration');
 
-use App\Http\Controllers\ArticleController;
+// Вход (Задание 6 - новые маршруты)
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 
-// Маршрут для списка статей (Задание 4)
-Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
-
-
-// Ресурсный маршрут для CRUD операций со статьями
-Route::resource('articles', ArticleController::class);
+// === Защищённые маршруты (требуют авторизации) ===
+Route::middleware(['auth:sanctum'])->group(function () {
+    // Выход
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    
+    // CRUD для статей (Задание 4-5) - теперь защищены
+    Route::resource('articles', ArticleController::class);
+});
