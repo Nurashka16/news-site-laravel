@@ -44,3 +44,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // CRUD для статей (Задание 4-5) - теперь защищены
     Route::resource('articles', ArticleController::class);
 });
+
+use App\Http\Controllers\CommentController;
+
+// Маршруты для комментариев (внутри группы auth:sanctum)
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/articles/{article}/comments', [CommentController::class, 'store'])
+        ->name('comments.store');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])
+        ->name('comments.destroy');
+});
