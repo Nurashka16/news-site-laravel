@@ -77,20 +77,73 @@
       border-bottom: 1px solid #e8491d;
       font-weight: bold;
       color: #fff;
-}
+   }
+   /* Стили для пагинации Laravel */
+   .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 40px;
+      list-style: none;
+      padding: 0;
+   }
+
+   .pagination li {
+      display: inline-block;
+   }
+
+   .pagination li a,
+   .pagination li span {
+      padding: 10px 16px;
+      background-color: #fff;
+      color: #35424a;
+      text-decoration: none;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      transition: all 0.3s;
+      display: inline-block;
+   }
+
+   .pagination li a:hover {
+      background-color: #35424a;
+      color: #fff;
+      border-color: #35424a;
+   }
+
+   .pagination li.active span {
+      background-color: #e8491d;
+      color: #fff;
+      border-color: #e8491d;
+      font-weight: bold;
+   }
+
+   .pagination li.disabled span {
+      color: #999;
+      cursor: not-allowed;
+      opacity: 0.6;
+   }
+
+   /* Скрываем стрелки если нужно */
+   .pagination .relative:first-child svg,
+   .pagination .relative:last-child svg {
+      display: none;
+   }
 </style>
 </head>
 <body>
     <header>
         <nav>
-    <div class="logo">NewsSite</div>
-<ul>
-    <li><a href="/" class="{{ request()->is('/') ? 'active' : '' }}">Главная</a></li>
-    <li><a href="{{ route('articles.index') }}" class="{{ request()->routeIs('articles.index') ? 'active' : '' }}">Новости</a></li>
-    <li><a href="/about" class="{{ request()->is('about') ? 'active' : '' }}">О нас</a></li>
-    <li><a href="/contact" class="{{ request()->is('contact') ? 'active' : '' }}">Контакты</a></li>
-    <li><a href="{{ route('signin') }}" style="background-color: #e8491d; padding: 5px 15px; border-radius: 3px;">Регистрация</a></li>
-</ul>
+    <div class="logo">
+        <a href="/" style="color: #fff; text-decoration: none;">NewsSite</a>
+    </div>
+   <ul>
+      <li><a href="/" class="{{ request()->is('/') ? 'active' : '' }}">Главная</a></li>
+      <li><a href="{{ route('articles.index') }}" class="{{ request()->routeIs('articles.*') ? 'active' : '' }}">Новости</a></li>
+      <li><a href="/about" class="{{ request()->is('about') ? 'active' : '' }}">О нас</a></li>
+      <li><a href="/contact" class="{{ request()->is('contact') ? 'active' : '' }}">Контакты</a></li>
+      <li><a href="{{ route('signin') }}">Регистрация</a></li>
+   </ul>
 </nav>
     </header>
 

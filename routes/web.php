@@ -56,3 +56,7 @@ use App\Http\Controllers\ArticleController;
 
 // Маршрут для списка статей (Задание 4)
 Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
+
+
+// Ресурсный маршрут для CRUD операций со статьями
+Route::resource('articles', ArticleController::class);

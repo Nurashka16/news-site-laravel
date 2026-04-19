@@ -4,7 +4,13 @@
 
 @section('content')
 <div class="container" style="padding: 40px 20px;">
-    <h1 style="color: #35424a; margin-bottom: 30px; text-align: center;">Все новости</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1 style="color: #35424a;">Все новости</h1>
+        <a href="{{ route('articles.create') }}" 
+           style="padding: 12px 25px; background-color: #27ae60; color: #fff; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            + Создать новость
+        </a>
+    </div>
 
     @if($articles->count() > 0)
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
@@ -18,12 +24,42 @@
                         <p style="color: #666; margin-bottom: 15px; font-size: 0.95rem;">{{ Str::limit($article->description, 100) }}</p>
                         <small style="color: #999;">📅 {{ \Carbon\Carbon::parse($article->published_at)->format('d.m.Y') }}</small>
                         <br>
-                        <a href="#" style="display: inline-block; margin-top: 10px; padding: 6px 12px; background-color: #35424a; color: #fff; text-decoration: none; border-radius: 3px; font-size: 0.9rem;">
+                        <a href="{{ route('articles.show', $article->id) }}" style="display: inline-block; margin-top: 10px; padding: 6px 12px; background-color: #35424a; color: #fff; text-decoration: none; border-radius: 3px; font-size: 0.9rem;">
                             Читать далее
                         </a>
                     </div>
                 </article>
             @endforeach
+        </div>
+        
+        <!-- Пагинация -->
+        <div style="margin-top: 40px;">
+            @if ($articles->hasPages())
+    <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 40px;">
+        {{-- Previous --}}
+        @if ($articles->onFirstPage())
+            <span style="padding: 10px 16px; background: #f4f4f4; color: #999; border: 1px solid #ddd; border-radius: 5px; cursor: not-allowed;">← Назад</span>
+        @else
+            <a href="{{ $articles->previousPageUrl() }}" style="padding: 10px 16px; background: #fff; color: #35424a; border: 1px solid #ddd; border-radius: 5px; text-decoration: none; transition: all 0.3s;">← Назад</a>
+        @endif
+
+        {{-- Page Numbers --}}
+        @foreach ($articles->getUrlRange(1, $articles->lastPage()) as $page => $url)
+            @if ($page == $articles->currentPage())
+                <span style="padding: 10px 16px; background: #e8491d; color: #fff; border: 1px solid #e8491d; border-radius: 5px; font-weight: bold;">{{ $page }}</span>
+            @else
+                <a href="{{ $url }}" style="padding: 10px 16px; background: #fff; color: #35424a; border: 1px solid #ddd; border-radius: 5px; text-decoration: none; transition: all 0.3s;">{{ $page }}</a>
+            @endif
+        @endforeach
+
+        {{-- Next --}}
+        @if ($articles->hasMorePages())
+            <a href="{{ $articles->nextPageUrl() }}" style="padding: 10px 16px; background: #fff; color: #35424a; border: 1px solid #ddd; border-radius: 5px; text-decoration: none; transition: all 0.3s;">Вперед →</a>
+        @else
+            <span style="padding: 10px 16px; background: #f4f4f4; color: #999; border: 1px solid #ddd; border-radius: 5px; cursor: not-allowed;">Вперед →</span>
+        @endif
+    </div>
+@endif
         </div>
     @else
         <p style="text-align: center; color: #666; padding: 40px;">Новостей пока нет.</p>

@@ -9,9 +9,12 @@ class Article extends Model
 {
     use HasFactory;
 
-    // Разрешаем заполнять все поля (или укажите конкретные)
     protected $fillable = [
         'title', 'description', 'content', 
         'preview_image', 'full_image', 'published_at'
+    ];
+
+    protected $casts = [
+        'published_at' => 'datetime',
     ];
 }
