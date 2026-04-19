@@ -50,8 +50,8 @@
         transition: background-color 0.3s;
     }
     nav ul li a:hover {
-        background-color: #e8491d;
-        border-radius: 3px;
+      border-bottom: 1px solid #e8491d;
+
     }
     main {
         flex: 1;
@@ -73,18 +73,24 @@
         margin: 0 auto;
         padding: 0 20px;
     }
+    nav ul li a.active {
+      border-bottom: 1px solid #e8491d;
+      font-weight: bold;
+      color: #fff;
+}
 </style>
 </head>
 <body>
     <header>
         <nav>
     <div class="logo">NewsSite</div>
-    <ul>
-        <li><a href="/">Главная</a></li>
-        <li><a href="/about">О нас</a></li>
-        <li><a href="/contact">Контакты</a></li>
-        <li><a href="{{ route('signin') }}" style="background-color: #e8491d; padding: 5px 15px; border-radius: 3px;">Регистрация</a></li>
-    </ul>
+<ul>
+    <li><a href="/" class="{{ request()->is('/') ? 'active' : '' }}">Главная</a></li>
+    <li><a href="{{ route('articles.index') }}" class="{{ request()->routeIs('articles.index') ? 'active' : '' }}">Новости</a></li>
+    <li><a href="/about" class="{{ request()->is('about') ? 'active' : '' }}">О нас</a></li>
+    <li><a href="/contact" class="{{ request()->is('contact') ? 'active' : '' }}">Контакты</a></li>
+    <li><a href="{{ route('signin') }}" style="background-color: #e8491d; padding: 5px 15px; border-radius: 3px;">Регистрация</a></li>
+</ul>
 </nav>
     </header>
 

@@ -51,3 +51,8 @@ Route::get('/signin', [AuthController::class, 'create'])->name('signin');
 
 // Обработать регистрацию
 Route::post('/registration', [AuthController::class, 'registration'])->name('registration');
+
+use App\Http\Controllers\ArticleController;
+
+// Маршрут для списка статей (Задание 4)
+Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
