@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MainController;
 
 /*
 |--------------------------------------------------------------------------
@@ -8,19 +9,19 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Главная страница
-Route::get('/', function () {
-    return view('welcome');
-});
+// Главная страница с новостями (через контроллер)
+Route::get('/', [MainController::class, 'index'])->name('home');
+
+// Страница галереи
+Route::get('/gallery/{id}', [MainController::class, 'gallery'])->name('gallery');
 
 // Страница "О нас"
 Route::get('/about', function () {
     return view('about');
 });
 
-// Страница "Контакты" с динамическими данными
+// Страница "Контакты"
 Route::get('/contact', function () {
-    // Массив данных о команде
     $team = [
         [
             'name' => 'Иванов Иван Иванович',
@@ -36,12 +37,17 @@ Route::get('/contact', function () {
             'name' => 'Сидоров Алексей Петрович',
             'position' => 'Корреспондент',
             'email' => 'sidorov@newssite.ru'
-        ],
-        [
-            'name' => 'Козлова Анна Владимировна',
-            'position' => 'Технический редактор',
         ]
     ];
 
     return view('contact', ['team' => $team]);
 });
+
+// === Маршруты авторизации ===
+use App\Http\Controllers\AuthController;
+
+// Показать форму регистрации
+Route::get('/signin', [AuthController::class, 'create'])->name('signin');
+
+// Обработать регистрацию
+Route::post('/registration', [AuthController::class, 'registration'])->name('registration');
