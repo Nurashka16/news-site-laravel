@@ -9,7 +9,11 @@ class Comment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['article_id', 'user_id', 'content'];
+    protected $fillable = ['article_id', 'user_id', 'content', 'is_approved'];
+
+    protected $casts = [
+        'is_approved' => 'boolean',
+    ];
 
     public function article()
     {

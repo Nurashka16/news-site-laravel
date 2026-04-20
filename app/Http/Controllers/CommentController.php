@@ -26,21 +26,62 @@ class CommentController extends Controller
             'article_id' => $article->id,
             'user_id' => Auth::id(),
             'content' => $request->content,
+            'is_approved' => false, // По умолчанию ожидает модерации
         ]);
 
         return redirect()->route('articles.show', $article->id)
-            ->with('success', 'Комментарий добавлен!');
+            ->with('success', 'Комментарий добавлен и ожидает модерации!');
+    }
+
+    public function moderation()
+    {
+        // Проверяем, что пользователь - модератор
+        if (!Auth::user()->isModerator()) {
+            abort(403, 'Доступ запрещен');
+        }
+
+        // Получаем все комментарии, ожидающие модерации
+        $comments = Comment::where('is_approved', false)
+            ->with(['article', 'user'])
+            ->latest()
+            ->paginate(10);
+
+        return view('comments.moderation', compact('comments'));
+    }
+
+    public function approve($id)
+    {
+        if (!Auth::user()->isModerator()) {
+            abort(403, 'Доступ запрещен');
+        }
+
+        $comment = Comment::findOrFail($id);
+        $comment->update(['is_approved' => true]);
+
+        return redirect()->route('comments.moderation')
+            ->with('success', 'Комментарий одобрен!');
+    }
+
+    public function reject($id)
+    {
+        if (!Auth::user()->isModerator()) {
+            abort(403, 'Доступ запрещен');
+        }
+
+        $comment = Comment::findOrFail($id);
+        $comment->delete();
+
+        return redirect()->route('comments.moderation')
+            ->with('success', 'Комментарий удален!');
     }
 
     public function destroy($id)
     {
-        $comment = Comment::findOrFail($id);
-        
-        // Проверяем, что пользователь - модератор
         if (!Auth::user()->isModerator()) {
-            abort(403, 'Только модератор может удалять комментарии');
+            abort(403, 'Доступ запрещен');
         }
         
+        $comment = Comment::findOrFail($id);
         $articleId = $comment->article_id;
         $comment->delete();
         

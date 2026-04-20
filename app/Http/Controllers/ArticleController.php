@@ -79,8 +79,11 @@ class ArticleController extends Controller
 
     public function show($id)
     {
-        // Загружаем статью вместе с комментариями и пользователями, оставившими их
-        $article = Article::with('comments.user')->findOrFail($id);
+        // Загружаем статью с одобренными комментариями и пользователями
+        $article = Article::with(['comments' => function($query) {
+            $query->where('is_approved', true)->with('user');
+        }])->findOrFail($id);
+        
         return view('articles.show', compact('article'));
     }
 

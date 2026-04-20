@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\CommentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,33 +33,34 @@ Route::get('/contact', function () {
 Route::get('/signin', [AuthController::class, 'create'])->name('signin');
 Route::post('/registration', [AuthController::class, 'registration'])->name('registration');
 
-// Вход (Задание 6 - новые маршруты)
+// Вход (Задание 6)
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 
 // === Защищённые маршруты (требуют авторизации) ===
 Route::middleware(['auth:sanctum'])->group(function () {
+    
     // Выход
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     
-    // CRUD для статей (Задание 4-5) - теперь защищены
+    // CRUD для статей (Задание 4-5)
     Route::resource('articles', ArticleController::class);
-});
-
-use App\Http\Controllers\CommentController;
-
-// Маршруты для комментариев (внутри группы auth:sanctum)
-Route::middleware(['auth:sanctum'])->group(function () {
+    
+    // === Комментарии (Задание 7-9) ===
+    
+    // Создание комментария (доступно всем авторизованным)
     Route::post('/articles/{article}/comments', [CommentController::class, 'store'])
         ->name('comments.store');
+    
+    // Удаление комментария (только модератор)
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])
         ->name('comments.destroy');
+    
+    // === Модерация комментариев (Задание 9 - только для модераторов) ===
+    Route::get('/comments-moderation', [CommentController::class, 'moderation'])
+        ->name('comments.moderation');
+    Route::post('/comments/{comment}/approve', [CommentController::class, 'approve'])
+        ->name('comments.approve');
+    Route::post('/comments/{comment}/reject', [CommentController::class, 'reject'])
+        ->name('comments.reject');
 });
-
-// Route::get('/test-mail', function () {
-//     Mail::raw('Тестовое сообщение от Laravel', function ($message) {
-//         $message->to('tnuraika16@gmail.com')
-//                 ->subject('Тест SMTP');
-//     });
-//     return 'Письмо отправлено! Проверь почту.';
-// });

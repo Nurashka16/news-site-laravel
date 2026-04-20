@@ -138,17 +138,32 @@
         <a href="{{ route('articles.index') }}" style="color: #fff; text-decoration: none;">NewsSite</a>
     </div>
     
-<div style="display: flex; align-items: center; gap: 20px;">
-    <!-- Основное меню -->
-    <ul style="display: flex; gap: 20px; margin: 0; padding: 0; list-style: none;">
-        <li><a href="/" class="{{ request()->is('/') ? 'active' : '' }}">Главная</a></li>
-        <li><a href="{{ route('articles.index') }}" class="{{ request()->routeIs('articles.*') ? 'active' : '' }}">Новости</a></li>
-        
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <!-- Основное меню -->
+        <ul style="display: flex; gap: 20px; margin: 0; padding: 0; list-style: none;">
+            <li><a href="/" class="{{ request()->is('/') ? 'active' : '' }}">Главная</a></li>
+            <li><a href="{{ route('articles.index') }}" class="{{ request()->routeIs('articles.*') ? 'active' : '' }}">Новости</a></li>
+            
+            <li><a href="/about" class="{{ request()->is('about') ? 'active' : '' }}">О нас</a></li>
+            <li><a href="/contact" class="{{ request()->is('contact') ? 'active' : '' }}">Контакты</a></li>
 
-        
-        <li><a href="/about" class="{{ request()->is('about') ? 'active' : '' }}">О нас</a></li>
-        <li><a href="/contact" class="{{ request()->is('contact') ? 'active' : '' }}">Контакты</a></li>
-    </ul>
+                @auth
+                @can('create', \App\Models\Article::class)
+                    <!-- Ссылка на модерацию комментариев (только для модераторов) -->
+                    <li><a href="{{ route('comments.moderation') }}" style="background-color: #f39c12; padding: 5px 15px; border-radius: 3px;">
+                        🔔
+                        @php
+                            $pendingComments = \App\Models\Comment::where('is_approved', false)->count();
+                        @endphp
+                        @if($pendingComments > 0)
+                            <span style="background: #e74c3c; color: #fff; padding: 2px 6px; border-radius: 50%; font-size: 0.8rem; margin-left: 5px;">
+                                {{ $pendingComments }}
+                            </span>
+                        @endif
+                    </a></li>
+                @endcan
+            @endauth
+        </ul>
     
     <!-- Кнопки авторизации -->
     <div style="display: flex; gap: 10px;">
@@ -164,8 +179,8 @@
             </form>
         @endguest
     </div>
-</div>
-</nav>
+    </div>
+    </nav>
     </header>
 
     <main>

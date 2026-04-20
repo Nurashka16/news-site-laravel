@@ -76,10 +76,14 @@
         </p>
     @endauth
 
-    <!-- Список комментариев -->
-    @if($article->comments->count() > 0)
+    <!-- Список комментариев (ТОЛЬКО одобренные!) -->
+    @php
+        $approvedComments = $article->comments()->where('is_approved', true)->with('user')->latest()->get();
+    @endphp
+
+    @if($approvedComments->count() > 0)
         <div style="display: flex; flex-direction: column; gap: 15px;">
-            @foreach($article->comments as $comment)
+            @foreach($approvedComments as $comment)
                 <div style="border: 1px solid #ddd; border-radius: 5px; padding: 15px; background: #f9f9f9;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <strong style="color: #35424a;">{{ $comment->user->name }}</strong>
