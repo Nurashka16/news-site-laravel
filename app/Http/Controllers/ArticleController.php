@@ -4,18 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\User;
+use App\Mail\NewArticleMail;
+use App\Jobs\SendNewArticleNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\NewArticleMail;
 
 class ArticleController extends Controller
 {
-    /**
-     * Конструктор
-     * Защита маршрутов авторизацией, КРОМЕ index и show
-     */
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
@@ -54,7 +51,6 @@ class ArticleController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Создание статьи
         $article = Article::create([
             'title' => $request->title,
             'description' => $request->description,
@@ -62,24 +58,21 @@ class ArticleController extends Controller
             'preview_image' => $request->preview_image ?? 'images/1.jpg',
             'full_image' => $request->full_image ?? 'images/1.jpg',
             'published_at' => $request->published_at ?? now(),
-            'user_id' => Auth::id(), // Сохраняем автора
+            'user_id' => Auth::id(),
         ]);
 
         $moderators = User::whereHas('role', function($query) {
             $query->where('name', 'moderator');
         })->get();
 
-        // Отправляем письмо каждому модератору
         foreach ($moderators as $moderator) {
-            Mail::to($moderator->email)->send(new NewArticleMail($article, $moderator));
+            SendNewArticleNotification::dispatch($article, $moderator);
         }
-
         return redirect()->route('articles.index')->with('success', 'Статья успешно создана и модераторы уведомлены!');
     }
 
     public function show($id)
     {
-        // Загружаем статью с одобренными комментариями и пользователями
         $article = Article::with(['comments' => function($query) {
             $query->where('is_approved', true)->with('user');
         }])->findOrFail($id);
